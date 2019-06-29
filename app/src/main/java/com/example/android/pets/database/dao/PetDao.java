@@ -16,25 +16,25 @@ import java.util.List;
 public interface PetDao
 {
     @Query("SELECT * FROM pets")
-    public LiveData<List<Pet>> selectPets();
+    LiveData<List<Pet>> selectAllPets();
 
     @Query("SELECT * FROM pets WHERE id == :id")
-    public LiveData<Pet> selectPet(int id);
+    LiveData<Pet> selectPet(int id);
 
     @Query("SELECT * FROM pets WHERE id == :id")
-    public Pet selectPetSync(int id);
+    Pet selectPetSync(int id);
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    public void insertPet(Pet pet);
+    void insertPet(Pet pet);
 
     @Update
-    public void updatePet(Pet pet);
+    void updatePet(Pet pet);
 
     @Delete
-    public void deletePet(Pet pet);
+    void deletePet(Pet pet);
 
     @Query("DELETE FROM pets")
-    public void deleteAllPets();
+    void deleteAllPets();
 
 
 }

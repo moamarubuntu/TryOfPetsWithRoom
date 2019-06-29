@@ -39,11 +39,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ui.CatalogActivity" />
         </activity>
-        <provider
-            android:authorities="com.example.android.pets"
-            android:name=".database.oldcontentprovider.ShelterProvider"
-            android:exported="false"
-            />
     </application>
 
 </manifest>

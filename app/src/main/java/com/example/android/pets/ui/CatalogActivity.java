@@ -19,7 +19,6 @@ import android.app.AlertDialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -37,7 +36,6 @@ import android.widget.Toast;
 
 
 import com.example.android.pets.R;
-import com.example.android.pets.database.oldcontentprovider.ShelterContract.PetEntry;
 import com.example.android.pets.database.entity.Pet;
 import com.example.android.pets.viewmodel.PetViewModel;
 
@@ -52,9 +50,6 @@ public class CatalogActivity extends AppCompatActivity /*implements LoaderManage
 
     //
     private static final int ID_OF_PET_LOADER = 0;
-
-    //
-    private PetCursorAdapter mPetCursorAdapter;
 
     //
     private PetAdapter petAdapter;
@@ -75,18 +70,9 @@ public class CatalogActivity extends AppCompatActivity /*implements LoaderManage
         View emptyView = findViewById(R.id.empty_view);
         listOfPetsListView.setEmptyView(emptyView);
 
-        // Setup an the adapter to create an item of ListView for each row of pet in the Cursor.
-        //**mPetCursorAdapter = new PetCursorAdapter(this, null);
-
-        //now
-        //**mPetCursorAdapter.swapCursor(cursor);
-        //now**
 
         // Setup an the adapter to create an item of ListView for each row of pet in the ...?/(Adapter).
         this.petAdapter = new PetAdapter(this, pets);
-
-        // Attach the adapter to the ListView.
-        //**listOfPetsListView.setAdapter(mPetCursorAdapter);
 
         // Attach the adapter to the ListView.
         listOfPetsListView.setAdapter(this.petAdapter);
@@ -96,9 +82,9 @@ public class CatalogActivity extends AppCompatActivity /*implements LoaderManage
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent editIntent = new Intent(CatalogActivity.this, EditorActivity.class);
 
-                Uri uriOfClickedPet = ContentUris.withAppendedId(PetEntry.CONTENT_URI, id);
+                //Uri uriOfClickedPet = ContentUris.withAppendedId(PetEntry.CONTENT_URI, id);
 
-                editIntent.setData(uriOfClickedPet);
+                editIntent.putExtra("idOfClickedPet" , position);
 
                 startActivity(editIntent);
             }
@@ -142,16 +128,19 @@ public class CatalogActivity extends AppCompatActivity /*implements LoaderManage
         // was before
         //this.updateUi();
 
-        petViewModel = ViewModelProviders.of(this).get(petViewModel.getClass());
+        this.petViewModel = ViewModelProviders.of(this).get(PetViewModel.class);
 
         // if I want this here I must remove the implementation of
         // LoaderCallBack<List<Pet>>
-        petViewModel.getAllPets().observe(this, new Observer<List<Pet>>() {
+        final Observer<List<Pet>> listOfPetsObserver = new Observer<List<Pet>>()
+        {
             @Override
             public void onChanged(@Nullable List<Pet> pets) {
                 updateUi(pets);
             }
-        });
+        };
+
+        petViewModel.getAllPets().observe(this, listOfPetsObserver);
         //
     }
 
@@ -205,59 +194,37 @@ public class CatalogActivity extends AppCompatActivity /*implements LoaderManage
 
     private void insertTestOfPet() {
         //
-        // Create a ContentValues object where column names are the keys,
-        // and Toto's pet attributes are the values.
-        // prepare the values of a row
-        /*ContentValues contentValues = new ContentValues();
-        contentValues.put(PetEntry.COLUMN_PET_NAME, "Toto");
-        contentValues.put(PetEntry.COLUMN_PET_BREED, "Terrier");
-        contentValues.put(PetEntry.COLUMN_PET_GENDER, PetEntry.GENDER_MALE);
-        contentValues.put(PetEntry.COLUMN_PET_WEIGHT, 7);*/
-
         // this pet to insert by pressing the menu item
         // of insert in CatalogActivity
-        Pet tryPet = new Pet(1, "Toto", "Terrier" , 0, 7);
+        Pet tryPet = new Pet("Toto", "Terrier" , 0, 7);
 
-
-        // Insert a new row for Toto into the provider using the ContentResolver.
-        // Use the {@link PetEntry#CONTENT_URI} to indicate that we want to insert
-        // into the pets database table.
-        // Receive the new content URI that will allow us to access Toto's database in the future.
-        /*Uri uriOfInsertedRowOfPet = getContentResolver().insert(PetEntry.CONTENT_URI, contentValues);*/
+        // insert a pet
+        petViewModel.insertPet(tryPet);
 
         //
-        Toast.makeText(this, super.getString(R.string.editor_insert_pet_successful) /*+
-                ContentUris.parseId(uriOfInsertedRowOfPet)*/, Toast.LENGTH_LONG).show();
+        Toast.makeText(this, super.getString(R.string.editor_insert_pet_successful),
+                Toast.LENGTH_LONG).show();
         //
-        //Log.v(LOG_TAG, "Id of row is: " + ContentUris.parseId(uriOfInsertedRowOfPet));
+        Log.v(LOG_TAG, "Id of row is: ");
     }
 
     //
     //
     private void deleteAllPets() {
         // TODO: Implement this method
-
-        // Call the ContentResolver to delete all pets at the given content URI.
-        // Pass in null for the selection and selection args because
-        // content URI already identifies all pets that we want.
-
-        // either PetEntry.CONTENT_URI with selection and selectionArgs
-        // or this.mUriOfClickedPet with null and null
-        /*int countOfDeletedRows = getContentResolver().delete(PetEntry.CONTENT_URI,
-                null, null);*/
         //
-        //Log.v(this.LOG_TAG, "rows deleted from pet database count is: " + countOfDeletedRows);
+        Log.v(this.LOG_TAG, "rows deleted from pet database count is: ");
 
         // Show a toast message depending on whether or not the delete was successful.
-        /*if (countOfDeletedRows == 0) {
+        if (0 == 0) {
             // If no rows were deleted, then there was an error with the delete.
             Toast.makeText(this, super.getString(R.string.catalog_delete_all_pets_failed) +
-                    " " + countOfDeletedRows, Toast.LENGTH_LONG).show();
+                    " ", Toast.LENGTH_LONG).show();
         } else {
             // Otherwise, the delete was successful and we can display a toast.
             Toast.makeText(this, super.getString(R.string.catalog_delete_all_pets_successful) +
-                    " " + countOfDeletedRows, Toast.LENGTH_LONG).show();
-        }*/
+                    " ", Toast.LENGTH_LONG).show();
+        }
         // Close the activity
         //super.finish();
 
@@ -269,7 +236,8 @@ public class CatalogActivity extends AppCompatActivity /*implements LoaderManage
         // for the positive and negative buttons on the dialog.
         AlertDialog.Builder deleteAllConfirmationAlertDialogBuilder = new AlertDialog.Builder(this);
         deleteAllConfirmationAlertDialogBuilder.setMessage(R.string.delete_all_dialog_msg);
-        deleteAllConfirmationAlertDialogBuilder.setPositiveButton(R.string.delete_all, new DialogInterface.OnClickListener() {
+        deleteAllConfirmationAlertDialogBuilder.setPositiveButton(R.string.delete_all,
+                new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int which) {
                 //
@@ -277,7 +245,8 @@ public class CatalogActivity extends AppCompatActivity /*implements LoaderManage
                 CatalogActivity.this.deleteAllPets();
             }
         });
-        deleteAllConfirmationAlertDialogBuilder.setNegativeButton(R.string.cancel, new DialogInterface.OnClickListener() {
+        deleteAllConfirmationAlertDialogBuilder.setNegativeButton(R.string.cancel,
+                new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialogInterface, int which) {
                 //

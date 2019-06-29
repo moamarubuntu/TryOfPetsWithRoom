@@ -22,91 +22,101 @@ public class PetRepository
 
         this.petDao = shelter.petDao();
 
-        this.allPets = petDao.selectPets();
+        this.allPets = petDao.selectAllPets();
+    }
+
+    //
+    public LiveData<List<Pet>> getAllPets()
+    {
+        return this.allPets;
     }
 
     //--
-    private static class insertPetAsyncTask extends AsyncTask<Pet, Void, Void>
+    private static class InsertPetAsyncTask extends AsyncTask<Pet, Void, Void>
     {
         private PetDao petDaoOfInsertAsyncTask;
 
-        insertPetAsyncTask(PetDao petDao) {
-            petDaoOfInsertAsyncTask = petDao;
+        InsertPetAsyncTask(PetDao petDao)
+        {
+            this.petDaoOfInsertAsyncTask = petDao;
         }
         @Override
         protected Void doInBackground(Pet... pets) {
-            petDaoOfInsertAsyncTask.insertPet(pets[0]);
+            this.petDaoOfInsertAsyncTask.insertPet(pets[0]);
             return null;
         }
     }
 
     //
-    public LiveData<List<Pet>> getAllPets() {
-        return this.allPets;
-    }
-
-    //
-    public void savePet(Pet pet) {
-        new insertPetAsyncTask(this.petDao).execute(pet);
+    public void savePet(Pet pet)
+    {
+        new InsertPetAsyncTask(this.petDao).execute(pet);
     }
 
     //--
-    private static class updatePetAsyncTask extends AsyncTask<Pet, Void, Void>
+    private static class UpdatePetAsyncTask extends AsyncTask<Pet, Void, Void>
     {
         private PetDao petDaoOfUpdateAsyncTask;
 
-        updatePetAsyncTask(PetDao petDao) {
-            petDaoOfUpdateAsyncTask = petDao;
+        UpdatePetAsyncTask(PetDao petDao)
+        {
+            this.petDaoOfUpdateAsyncTask = petDao;
         }
         @Override
-        protected Void doInBackground(Pet... pets) {
-            petDaoOfUpdateAsyncTask.updatePet(pets[0]);
+        protected Void doInBackground(Pet... pets)
+        {
+            this.petDaoOfUpdateAsyncTask.updatePet(pets[0]);
             return null;
         }
     }
 
     //
     public void updatePet(Pet pet) {
-        new updatePetAsyncTask(this.petDao).execute(pet);
+        new UpdatePetAsyncTask(this.petDao).execute(pet);
     }
 
     //--
-    private static class deletePetAsyncTask extends AsyncTask<Pet, Void, Void>
+    private static class DeletePetAsyncTask extends AsyncTask<Pet, Void, Void>
     {
         private PetDao petDaoOfDeleteAsyncTask;
 
-        deletePetAsyncTask(PetDao petDao) {
-            petDaoOfDeleteAsyncTask = petDao;
+        DeletePetAsyncTask(PetDao petDao)
+        {
+            this.petDaoOfDeleteAsyncTask = petDao;
         }
         @Override
         protected Void doInBackground(Pet... pets) {
-            petDaoOfDeleteAsyncTask.deletePet(pets[0]);
+            this.petDaoOfDeleteAsyncTask.deletePet(pets[0]);
             return null;
         }
     }
 
     //
-    public void deletePet(Pet pet) {
-        new deletePetAsyncTask(this.petDao).execute(pet);
+    public void deletePet(Pet pet)
+    {
+        new DeletePetAsyncTask(this.petDao).execute(pet);
     }
 
     //--
-    private static class deleteAllPetsAsyncTask extends AsyncTask<Void, Void, Void>
+    private static class DeleteAllPetsAsyncTask extends AsyncTask<Void, Void, Void>
     {
         private PetDao petDaoOfDeleteAllAsyncTask;
 
-        deleteAllPetsAsyncTask(PetDao petDao) {
-            petDaoOfDeleteAllAsyncTask = petDao;
+        DeleteAllPetsAsyncTask(PetDao petDao)
+        {
+            this.petDaoOfDeleteAllAsyncTask = petDao;
         }
         @Override
-        protected Void doInBackground(Void... voids) {
-            petDaoOfDeleteAllAsyncTask.deleteAllPets();
+        protected Void doInBackground(Void... voids)
+        {
+            this.petDaoOfDeleteAllAsyncTask.deleteAllPets();
             return null;
         }
     }
 
     //
-    public void deleteAllPets() {
-        new deleteAllPetsAsyncTask(this.petDao).execute();
+    public void deleteAllPets()
+    {
+        new DeleteAllPetsAsyncTask(this.petDao).execute();
     }
 }

@@ -16,24 +16,29 @@ public abstract class Shelter extends RoomDatabase
 {
     public abstract PetDao petDao();
 
-    private static volatile Shelter INSTANCE;
+    private static volatile Shelter SHELTER;
 
     //
     private static class PopulateDataAsyncTask extends AsyncTask<Void, Void, Void>
     {
         private final PetDao petDao;
 
-        PopulateDataAsyncTask(Shelter shelter) {
-            petDao = shelter.petDao();
+        PopulateDataAsyncTask(Shelter shelter)
+        {
+            this.petDao = shelter.petDao();
         }
 
         @Override
         protected Void doInBackground(Void... voids) {
+
+            // Start the app with a clean database every time.
+            // Not needed if you only populate on creation.
             //
-            //petDao.deleteAllPets();
-            Pet pet = new Pet(0,"Pet name",
+            //this.petDao.deleteAllPets();
+
+            /*Pet pet = new Pet("Pet name",
                     "Pet breed", 0, 7);
-            petDao.insertPet(pet);
+            this.petDao.insertPet(pet);*/
             return null;
         }
     }//PopulateDataAsyncTask
@@ -47,22 +52,26 @@ public abstract class Shelter extends RoomDatabase
         @Override
         public void onOpen(@NonNull SupportSQLiteDatabase db) {
             super.onOpen(db);
-            new PopulateDataAsyncTask(INSTANCE).execute();
+
+            // If you want to keep the data through app restarts,
+            // comment out the following line.
+            //
+            new PopulateDataAsyncTask(SHELTER).execute();
         }
     };
 
     public static Shelter getInstance(final Context context) {
-        if (INSTANCE == null) {
+        if (SHELTER == null) {
             synchronized (Shelter.class) {
-                if (INSTANCE == null) {
-                    INSTANCE = Room.databaseBuilder(context.getApplicationContext(),
+                if (SHELTER == null) {
+                    SHELTER = Room.databaseBuilder(context.getApplicationContext(),
                             Shelter.class, "shelter")
                             .addCallback(sRoomDatabaseCallback)
                             .build();
                 }
             }//synchronized
         }//first if
-        return INSTANCE;
+        return SHELTER;
     }//getInstance
 
     //

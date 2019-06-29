@@ -41,14 +41,13 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.android.pets.R;
-import com.example.android.pets.database.oldcontentprovider.ShelterContract.PetEntry;
 
 import java.util.Locale;
 
 /**
  * Allows user to create a new pet or edit an existing one.
  */
-public class EditorActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
+public class EditorActivity extends AppCompatActivity /*implements LoaderManager.LoaderCallbacks<Cursor>*/ {
     //
     private static final String LOG_TAG = EditorActivity.class.getSimpleName();
 
@@ -97,10 +96,12 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         setContentView(R.layout.activity_editor);
 
         Intent receivedIntent = super.getIntent();
-        this.mUriOfClickedPetFromReceivedIntent = receivedIntent.getData();
+        //this.mUriOfClickedPetFromReceivedIntent = receivedIntent.getData();
 
+        // get the id of the pet
+        int idOfClickedPet = receivedIntent.getIntExtra("idOfClickedPet", -1);
         // change the title of the EditorActivity
-        if (this.mUriOfClickedPetFromReceivedIntent == null) {
+        if (idOfClickedPet == -1) {
             this.setTitle(R.string.editor_activity_title_new_pet);
 
             // Invalidate the options menu, so the "Delete" menu option can be hidden.
@@ -112,7 +113,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         }
 
         // to test if the uri was passed correctly
-        Log.v(LOG_TAG, "Uri from received intent is : " + receivedIntent.getData());
+        Log.v(LOG_TAG, "Uri from received intent is : " + idOfClickedPet);
 
         // Find all relevant views that we will need to read user input from
         mNameEditText = (EditText) findViewById(R.id.edit_pet_name);
@@ -123,7 +124,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         setupSpinner();
 
         //
-        getLoaderManager().initLoader(ID_OF_EDIT_OR_INSERT_PET_LOADER, null, this);
+        //**getLoaderManager().initLoader(ID_OF_EDIT_OR_INSERT_PET_LOADER, null, this);
 
         //
         mNameEditText.setOnTouchListener(mOnTouchListener);
@@ -155,11 +156,11 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                 String selection = (String) parent.getItemAtPosition(position);
                 if (!TextUtils.isEmpty(selection)) {
                     if (selection.equals(getString(R.string.gender_male))) {
-                        mGender = PetEntry.GENDER_MALE; // Male
+                        mGender = 1;// Male
                     } else if (selection.equals(getString(R.string.gender_female))) {
-                        mGender = PetEntry.GENDER_FEMALE; // Female
+                        mGender = 2; // Female
                     } else {
-                        mGender = PetEntry.GENDER_UNKNOWN; // Unknown
+                        mGender = 0; // Unknown
                     }
                 }
             }
@@ -167,7 +168,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
             // Because AdapterView is an abstract class, onNothingSelected must be defined
             @Override
             public void onNothingSelected(AdapterView<?> parent) {
-                mGender = PetEntry.GENDER_UNKNOWN; // Unknown
+                mGender = 0; // Unknown
             }
         });
     }
@@ -185,7 +186,7 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         // Solving the bug of pressing Add a InterfaceOfPet without entering values
         if (this.mUriOfClickedPetFromReceivedIntent == null && TextUtils.isEmpty(name) &&
                 TextUtils.isEmpty(breed) && TextUtils.isEmpty(weightAsString) &&
-                mGender == PetEntry.GENDER_UNKNOWN) {
+                mGender == 0) {
             //
             return;
         }
@@ -198,12 +199,12 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
 
 
         // prepare the values of a row
-        ContentValues contentValues = new ContentValues();
-
-        contentValues.put(PetEntry.COLUMN_PET_NAME, name);
-        contentValues.put(PetEntry.COLUMN_PET_BREED, breed);
-        contentValues.put(PetEntry.COLUMN_PET_GENDER, mGender);
-        contentValues.put(PetEntry.COLUMN_PET_WEIGHT, weight);
+//        ContentValues contentValues = new ContentValues();
+//
+//        contentValues.put(PetEntry.COLUMN_PET_NAME, name);
+//        contentValues.put(PetEntry.COLUMN_PET_BREED, breed);
+//        contentValues.put(PetEntry.COLUMN_PET_GENDER, mGender);
+//        contentValues.put(PetEntry.COLUMN_PET_WEIGHT, weight);
 
         //
 
@@ -213,33 +214,33 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         if (this.mUriOfClickedPetFromReceivedIntent == null) {
             // this is the function of insertPet
 
-            Uri uriOfInsertedRowOfPet = getContentResolver().insert(PetEntry.CONTENT_URI, contentValues);
+//            Uri uriOfInsertedRowOfPet = getContentResolver().insert(PetEntry.CONTENT_URI, contentValues);
 
-            Log.v(LOG_TAG, "Id of inserted row is: " + ContentUris.parseId(uriOfInsertedRowOfPet));
+//            Log.v(LOG_TAG, "Id of inserted row is: " + ContentUris.parseId(uriOfInsertedRowOfPet));
 
-            if (uriOfInsertedRowOfPet == null) {
+            /*if (uriOfInsertedRowOfPet == null) {
                 Toast.makeText(this, super.getString(R.string.editor_insert_pet_failed) +
                         ContentUris.parseId(uriOfInsertedRowOfPet), Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(this, super.getString(R.string.editor_insert_pet_successful) +
                         ContentUris.parseId(uriOfInsertedRowOfPet), Toast.LENGTH_LONG).show();
-            }
+            }*/
         }
         else {
             // this is the function of updatePet
-            int countOfUpdatedRows = getContentResolver().update(
+            /*int countOfUpdatedRows = getContentResolver().update(
                     this.mUriOfClickedPetFromReceivedIntent, contentValues,
-                    null, null);
+                    null, null);*/
 
-            Log.v(LOG_TAG, "Count of updated rows is: " + countOfUpdatedRows);
+//            Log.v(LOG_TAG, "Count of updated rows is: " + countOfUpdatedRows);
 
-            if (countOfUpdatedRows == 0) {
+            /*if (countOfUpdatedRows == 0) {
                 Toast.makeText(this, super.getString(R.string.editor_update_pet_failed) +
                         countOfUpdatedRows, Toast.LENGTH_LONG).show();
             } else {
                 Toast.makeText(this, super.getString(R.string.editor_update_pet_successful) +
                         countOfUpdatedRows, Toast.LENGTH_LONG).show();
-            }
+            }*/
         }
         //
     }
@@ -298,16 +299,9 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
+    /*@Override
     public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
         //
-        String [] columns = {
-                PetEntry._ID,
-                PetEntry.COLUMN_PET_NAME,
-                PetEntry.COLUMN_PET_BREED,
-                PetEntry.COLUMN_PET_GENDER,
-                PetEntry.COLUMN_PET_WEIGHT
-        };
 
         switch (id) {
             //
@@ -318,77 +312,34 @@ public class EditorActivity extends AppCompatActivity implements LoaderManager.L
                     return null;
                 }
                 // Return a new Loader of Cursor
-                return new CursorLoader(this,
-                        this.mUriOfClickedPetFromReceivedIntent,
-                        columns,
-                        null,
-                        null,
-                        null);
+                return null;
             default:
                 // An invalid id was passed
                 return null;
         }
-    }
+    }*/
 
-    @Override
+    /*@Override
     public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
         //
         // Bail early if the cursor is null or there is less than 1 row in the cursor
         if (cursor == null || cursor.getCount() < 1) {
             return;
         }
-        // get the index of each column
-        int idColumnIndex = cursor.getColumnIndex(PetEntry._ID);
-        int nameColumnIndex = cursor.getColumnIndex(PetEntry.COLUMN_PET_NAME);
-        int breedColumnIndex = cursor.getColumnIndex(PetEntry.COLUMN_PET_BREED);
-        int genderColumnIndex = cursor.getColumnIndex(PetEntry.COLUMN_PET_GENDER);
-        int weightColumnIndex = cursor.getColumnIndex(PetEntry.COLUMN_PET_WEIGHT);
 
         // there is only one row in the cursor
         // moveToNext means move
-        if (cursor.moveToNext()) {
-            // get the id and name and breed and gender and weight at cursor or where the cursor is
-            int idOfPetAtCursor = cursor.getInt(idColumnIndex);
-            String nameOfPetAtCursor = cursor.getString(nameColumnIndex);
-            String breedOfPetAtCursor = cursor.getString(breedColumnIndex);
-            int genderOfPetAtCursor = cursor.getInt(genderColumnIndex);
-            int weightOfPetAtCursor = cursor.getInt(weightColumnIndex);
 
-            // assign the values to the views
-            mNameEditText.setText(nameOfPetAtCursor);
-            mBreedEditText.setText(breedOfPetAtCursor);
+    }*/
 
-            // Gender is a dropdown spinner, so map the constant value from the database
-            // into one of the dropdown options (0 is Unknown, 1 is Male, 2 is Female).
-            // Then call setSelection() so that option is displayed on screen as the current selection.
-            switch (genderOfPetAtCursor) {
-                case PetEntry.GENDER_MALE:
-                    mGenderSpinner.setSelection(1);
-                    break;
-                case PetEntry.GENDER_FEMALE:
-                    mGenderSpinner.setSelection(2);
-                    break;
-                default:
-                    mGenderSpinner.setSelection(0);
-                    break;
-            }
-            // set the weight
-            //mWeightEditText.setText("" + weightOfPetAtCursor);
-            // or this
-            //mWeightEditText.setText(Integer.toString(weightOfPetAtCursor));
-            // or
-            mWeightEditText.setText(String.format(Locale.UK, "%d", weightOfPetAtCursor));
-        }
-    }
-
-    @Override
+    /*@Override
     public void onLoaderReset(Loader<Cursor> loader) {
         //
         mNameEditText.getText().clear();
         mBreedEditText.getText().clear();
         mGenderSpinner.setSelection(0);
         mWeightEditText.getText().clear();
-    }
+    }*/
 
     //
     private void showUnsavedChangesAlertDialog(

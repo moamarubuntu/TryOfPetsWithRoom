@@ -23,7 +23,8 @@ public class PetViewModel extends AndroidViewModel
         this.allPets = petRepository.getAllPets();
     }
 
-    public LiveData<List<Pet>> getAllPets() {
+    public LiveData<List<Pet>> getAllPets()
+    {
         return this.allPets;
     }
 
@@ -35,11 +36,13 @@ public class PetViewModel extends AndroidViewModel
         this.petRepository.updatePet(pet);
     }
 
-    public void deletePet(Pet pet) {
+    public void deletePet(Pet pet)
+    {
         this.petRepository.deletePet(pet);
     }
 
-    public void deleteAllPets() {
+    public void deleteAllPets()
+    {
         this.petRepository.deleteAllPets();
     }
 }
