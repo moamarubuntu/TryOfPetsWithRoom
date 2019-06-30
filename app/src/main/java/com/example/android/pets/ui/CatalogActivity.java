@@ -83,10 +83,11 @@ public class CatalogActivity extends AppCompatActivity /*implements LoaderManage
                 Intent editIntent = new Intent(CatalogActivity.this, EditorActivity.class);
 
                 //
-                Log.v(LOG_TAG, "Id sent by intent is : " + id);
+                //Log.v(LOG_TAG, "Id sent by intent is : " + id);
                 //Uri uriOfClickedPet = ContentUris.withAppendedId(PetEntry.CONTENT_URI, id);
 
-                editIntent.putExtra("idOfClickedPet" , String.valueOf(id));
+                Pet pet = petAdapter.getItem(position);
+                editIntent.putExtra("idOfClickedPet" , pet.getId());
 
                 startActivity(editIntent);
             }

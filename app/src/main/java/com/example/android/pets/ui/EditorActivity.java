@@ -78,7 +78,9 @@ public class EditorActivity extends AppCompatActivity /*implements LoaderManager
     /** Content URI for the existing pet (null if it's a new pet) */
     private Uri mUriOfClickedPetFromReceivedIntent = null;
 
-    private int idOfClickedPet = -1;
+    private int idOfClickedPet;
+
+    private Pet theClickedPet;
 
     //
     private PetViewModel petViewModel;
@@ -104,6 +106,11 @@ public class EditorActivity extends AppCompatActivity /*implements LoaderManager
     private void updateUi(Pet pet)
     {
         //
+        if (pet == null) {
+            return;
+        }
+
+        this.theClickedPet = pet;
         // assign the values to the views
         mNameEditText.setText(pet.getName());
         mBreedEditText.setText(pet.getBreed());
@@ -132,17 +139,19 @@ public class EditorActivity extends AppCompatActivity /*implements LoaderManager
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
 
+        this.petViewModel = ViewModelProviders.of(this).get(PetViewModel.class);
+
         Intent receivedIntent = super.getIntent();
         //this.mUriOfClickedPetFromReceivedIntent = receivedIntent.getData();
 
         // get the id of the pet
-        //this.idOfClickedPet = receivedIntent.getIntExtra("idOfClickedPet", -1);
-        String idAsString = receivedIntent.getStringExtra("idOfClickedPet");
-        Log.v(LOG_TAG, "Uri from received intent is : " + idAsString);
-        this.idOfClickedPet = Integer.parseInt(idAsString);
+        this.idOfClickedPet = receivedIntent.getIntExtra("idOfClickedPet", 0);
+        //String idAsString = receivedIntent.getStringExtra("idOfClickedPet");
+        //Log.v(LOG_TAG, "Uri from received intent is : " + idAsString);
+        //this.idOfClickedPet =0; //Integer.parseInt(idAsString);
         Log.v(LOG_TAG, "Id from received intent is : " + this.idOfClickedPet);
         // change the title of the EditorActivity
-        if (idOfClickedPet == -1) {
+        if (idOfClickedPet <= 0) {
             this.setTitle(R.string.editor_activity_title_new_pet);
 
             // Invalidate the options menu, so the "Delete" menu option can be hidden.
@@ -150,7 +159,19 @@ public class EditorActivity extends AppCompatActivity /*implements LoaderManager
             invalidateOptionsMenu();
         }
         else {
+            //
             this.setTitle(R.string.editor_activity_title_old_pet);
+
+            // fetch the old pet
+            final Observer<Pet> petObserver = new Observer<Pet>()
+            {
+                @Override
+                public void onChanged(@Nullable Pet pet) {
+                    updateUi(pet);
+                }
+            };
+
+            petViewModel.getPet(this.idOfClickedPet).observe(this, petObserver);
         }
 
         // to test if the uri was passed correctly
@@ -175,9 +196,9 @@ public class EditorActivity extends AppCompatActivity /*implements LoaderManager
 
 
 
-        this.petViewModel = ViewModelProviders.of(this).get(PetViewModel.class);
+        //this.petViewModel = ViewModelProviders.of(this).get(PetViewModel.class);
 
-        final Observer<Pet> petObserver = new Observer<Pet>()
+        /*final Observer<Pet> petObserver = new Observer<Pet>()
         {
             @Override
             public void onChanged(@Nullable Pet pet) {
@@ -185,7 +206,7 @@ public class EditorActivity extends AppCompatActivity /*implements LoaderManager
             }
         };
 
-        petViewModel.getPet(this.idOfClickedPet).observe(this, petObserver);
+        petViewModel.getPet(this.idOfClickedPet).observe(this, petObserver);*/
 
     }
 
@@ -239,7 +260,7 @@ public class EditorActivity extends AppCompatActivity /*implements LoaderManager
         String weightAsString = mWeightEditText.getText().toString().trim();
         //
         // Solving the bug of pressing Add a InterfaceOfPet without entering values
-        if (this.idOfClickedPet == -1 && TextUtils.isEmpty(name) &&
+        if (this.idOfClickedPet == 0 && TextUtils.isEmpty(name) &&
                 TextUtils.isEmpty(breed) && TextUtils.isEmpty(weightAsString) &&
                 mGender == 0) {
             //
@@ -260,12 +281,12 @@ public class EditorActivity extends AppCompatActivity /*implements LoaderManager
         // change the function of the EditorActivity
         // to either insertPet or updatePet
         // according to this.mUriOfClickedPetFromReceivedIntent
-        if (this.idOfClickedPet == -1) {
+        if (this.idOfClickedPet <= 0) {
             // this is the function of insertPet
 
             //**Uri uriOfInsertedRowOfPet = getContentResolver().insert(PetEntry.CONTENT_URI, contentValues);
 
-            //
+            this.petViewModel.insertPet(pet);
             //Log.v(LOG_TAG, "Id of inserted row is: " + ContentUris.parseId(uriOfInsertedRowOfPet));
 
             /*if (uriOfInsertedRowOfPet == null) {
@@ -282,7 +303,8 @@ public class EditorActivity extends AppCompatActivity /*implements LoaderManager
                     this.mUriOfClickedPetFromReceivedIntent, contentValues,
                     null, null);*/
 
-//            Log.v(LOG_TAG, "Count of updated rows is: " + countOfUpdatedRows);
+            this.petViewModel.updatePet(pet);
+            Log.v(LOG_TAG, "Count of updated rows is: " /*+ countOfUpdatedRows*/);
 
             /*if (countOfUpdatedRows == 0) {
                 Toast.makeText(this, super.getString(R.string.editor_update_pet_failed) +
@@ -426,11 +448,11 @@ public class EditorActivity extends AppCompatActivity /*implements LoaderManager
         // If the pet hasn't changed, continue with handling back button press
         // means no view was touched
         // or if (mNameEditText.isPressed() || ...) {...}
-        /*if (!this.mOnTouchListener.onTouch(mGenderSpinner, null)) {
+        if (!this.mOnTouchListener.onTouch(mGenderSpinner, null)) {
             super.onBackPressed();
             Log.v(EditorActivity.LOG_TAG, "no view is touch");
             return;
-        }*/
+        }
         //
         if (!mPetHasChanged) {
             super.onBackPressed();
@@ -459,43 +481,12 @@ public class EditorActivity extends AppCompatActivity /*implements LoaderManager
         //return super.onPrepareOptionsMenu(menu);
         super.onPrepareOptionsMenu(menu);
         // If this is a new pet, hide the "Delete" menu item.
-        if (this.mUriOfClickedPetFromReceivedIntent == null) {
+        if (this.idOfClickedPet == 0) {
+        //if (this.mUriOfClickedPetFromReceivedIntent == null) {
             MenuItem menuItem = menu.findItem(R.id.action_delete);
             menuItem.setVisible(false);
         }
         return true;
-    }
-
-    //
-    /**
-     * Perform the deletion of the pet in the database.
-     */
-    private void deleteTheClickedPet() {
-        // TODO: Implement this method
-        // Only perform the delete if this is an existing pet.
-        if (this.mUriOfClickedPetFromReceivedIntent != null) {
-            // Call the ContentResolver to delete the pet at the given content URI.
-            // Pass in null for the selection and selection args because the mCurrentPetUri
-            // content URI already identifies the pet that we want.
-
-            // either PetEntry.CONTENT_URI with selection and selectionArgs
-            // or this.mUriOfClickedPet with null and null
-            int countOfDeletedRows = getContentResolver().delete(this.mUriOfClickedPetFromReceivedIntent,
-                    null, null);
-            //
-            // Show a toast message depending on whether or not the delete was successful.
-            if (countOfDeletedRows == 0) {
-                // If no rows were deleted, then there was an error with the delete.
-                Toast.makeText(this, super.getString(R.string.editor_delete_pet_failed) +
-                        countOfDeletedRows, Toast.LENGTH_LONG).show();
-            } else {
-                // Otherwise, the delete was successful and we can display a toast.
-                Toast.makeText(this, super.getString(R.string.editor_delete_pet_successful) +
-                        countOfDeletedRows, Toast.LENGTH_LONG).show();
-            }
-            // Close the editor activity
-            super.finish();
-        }
     }
 
     //
@@ -527,5 +518,39 @@ public class EditorActivity extends AppCompatActivity /*implements LoaderManager
         // Create and show the AlertDialog
         AlertDialog deleteConfirmationAlertDialog = deleteConfirmationAlertDialogBuilder.create();
         deleteConfirmationAlertDialog.show();
+    }
+
+    /**
+     * Perform the deletion of the pet in the database.
+     */
+    private void deleteTheClickedPet() {
+        // TODO: Implement this method
+        // Only perform the delete if this is an existing pet.
+        if (this.idOfClickedPet > 0) {
+            //if (this.mUriOfClickedPetFromReceivedIntent != null) {
+            // Call the ContentResolver to delete the pet at the given content URI.
+            // Pass in null for the selection and selection args because the mCurrentPetUri
+            // content URI already identifies the pet that we want.
+
+            // either PetEntry.CONTENT_URI with selection and selectionArgs
+            // or this.mUriOfClickedPet with null and null
+            /*int countOfDeletedRows = getContentResolver().delete(this.mUriOfClickedPetFromReceivedIntent,
+                    null, null);*/
+            //
+            this.petViewModel.deletePet(this.theClickedPet);
+            Log.v(LOG_TAG, "Count of deleted rows is: " /*+ countOfUpdatedRows*/);
+            // Show a toast message depending on whether or not the delete was successful.
+            /*if (countOfDeletedRows == 0) {
+                // If no rows were deleted, then there was an error with the delete.
+                Toast.makeText(this, super.getString(R.string.editor_delete_pet_failed) +
+                        countOfDeletedRows, Toast.LENGTH_LONG).show();
+            } else {
+                // Otherwise, the delete was successful and we can display a toast.
+                Toast.makeText(this, super.getString(R.string.editor_delete_pet_successful) +
+                        countOfDeletedRows, Toast.LENGTH_LONG).show();
+            }*/
+            // Close the editor activity
+            super.finish();
+        }
     }
 }
