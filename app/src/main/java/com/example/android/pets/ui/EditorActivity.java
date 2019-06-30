@@ -136,7 +136,11 @@ public class EditorActivity extends AppCompatActivity /*implements LoaderManager
         //this.mUriOfClickedPetFromReceivedIntent = receivedIntent.getData();
 
         // get the id of the pet
-        this.idOfClickedPet = receivedIntent.getIntExtra("idOfClickedPet", -1);
+        //this.idOfClickedPet = receivedIntent.getIntExtra("idOfClickedPet", -1);
+        String idAsString = receivedIntent.getStringExtra("idOfClickedPet");
+        Log.v(LOG_TAG, "Uri from received intent is : " + idAsString);
+        this.idOfClickedPet = Integer.parseInt(idAsString);
+        Log.v(LOG_TAG, "Id from received intent is : " + this.idOfClickedPet);
         // change the title of the EditorActivity
         if (idOfClickedPet == -1) {
             this.setTitle(R.string.editor_activity_title_new_pet);

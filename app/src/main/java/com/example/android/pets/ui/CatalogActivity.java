@@ -82,10 +82,11 @@ public class CatalogActivity extends AppCompatActivity /*implements LoaderManage
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 Intent editIntent = new Intent(CatalogActivity.this, EditorActivity.class);
 
+                //
                 Log.v(LOG_TAG, "Id sent by intent is : " + id);
                 //Uri uriOfClickedPet = ContentUris.withAppendedId(PetEntry.CONTENT_URI, id);
 
-                editIntent.putExtra("idOfClickedPet" , position);
+                editIntent.putExtra("idOfClickedPet" , String.valueOf(id));
 
                 startActivity(editIntent);
             }
