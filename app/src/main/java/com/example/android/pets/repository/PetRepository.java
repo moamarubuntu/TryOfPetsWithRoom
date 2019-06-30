@@ -31,6 +31,12 @@ public class PetRepository
         return this.allPets;
     }
 
+    //
+    public LiveData<Pet> getPet(int id)
+    {
+        return  this.petDao.selectPet(id);
+    }
+
     //--
     private static class InsertPetAsyncTask extends AsyncTask<Pet, Void, Void>
     {

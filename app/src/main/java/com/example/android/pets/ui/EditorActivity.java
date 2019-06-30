@@ -17,6 +17,8 @@ package com.example.android.pets.ui;
 
 import android.app.AlertDialog;
 import android.app.LoaderManager;
+import android.arch.lifecycle.Observer;
+import android.arch.lifecycle.ViewModelProviders;
 import android.content.ContentUris;
 import android.content.ContentValues;
 import android.content.CursorLoader;
@@ -26,6 +28,7 @@ import android.content.Loader;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
+import android.support.annotation.Nullable;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
@@ -41,7 +44,10 @@ import android.widget.Spinner;
 import android.widget.Toast;
 
 import com.example.android.pets.R;
+import com.example.android.pets.database.entity.Pet;
+import com.example.android.pets.viewmodel.PetViewModel;
 
+import java.util.List;
 import java.util.Locale;
 
 /**
@@ -72,6 +78,11 @@ public class EditorActivity extends AppCompatActivity /*implements LoaderManager
     /** Content URI for the existing pet (null if it's a new pet) */
     private Uri mUriOfClickedPetFromReceivedIntent = null;
 
+    private int idOfClickedPet = -1;
+
+    //
+    private PetViewModel petViewModel;
+
     //
     private final static int ID_OF_EDIT_OR_INSERT_PET_LOADER = 0;
 
@@ -90,6 +101,32 @@ public class EditorActivity extends AppCompatActivity /*implements LoaderManager
     };
 
 
+    private void updateUi(Pet pet)
+    {
+        //
+        // assign the values to the views
+        mNameEditText.setText(pet.getName());
+        mBreedEditText.setText(pet.getBreed());
+
+        // Gender is a dropdown spinner, so map the constant value from the database
+        // into one of the dropdown options (0 is Unknown, 1 is Male, 2 is Female).
+        // Then call setSelection() so that option is displayed on screen as the current selection.
+        switch (pet.getGender()) {
+            case 1:
+                mGenderSpinner.setSelection(1);
+                break;
+            case 2:
+                mGenderSpinner.setSelection(2);
+                break;
+            default:
+                mGenderSpinner.setSelection(0);
+                break;
+        }
+        // set the weight
+        mWeightEditText.setText(String.format(Locale.UK, "%d", pet.getWeight()));
+    }
+
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -99,7 +136,7 @@ public class EditorActivity extends AppCompatActivity /*implements LoaderManager
         //this.mUriOfClickedPetFromReceivedIntent = receivedIntent.getData();
 
         // get the id of the pet
-        int idOfClickedPet = receivedIntent.getIntExtra("idOfClickedPet", -1);
+        this.idOfClickedPet = receivedIntent.getIntExtra("idOfClickedPet", -1);
         // change the title of the EditorActivity
         if (idOfClickedPet == -1) {
             this.setTitle(R.string.editor_activity_title_new_pet);
@@ -113,7 +150,7 @@ public class EditorActivity extends AppCompatActivity /*implements LoaderManager
         }
 
         // to test if the uri was passed correctly
-        Log.v(LOG_TAG, "Uri from received intent is : " + idOfClickedPet);
+        Log.v(LOG_TAG, "Uri from received intent is : " + this.idOfClickedPet);
 
         // Find all relevant views that we will need to read user input from
         mNameEditText = (EditText) findViewById(R.id.edit_pet_name);
@@ -131,6 +168,20 @@ public class EditorActivity extends AppCompatActivity /*implements LoaderManager
         mBreedEditText.setOnTouchListener(mOnTouchListener);
         mWeightEditText.setOnTouchListener(mOnTouchListener);
         mGenderSpinner.setOnTouchListener(mOnTouchListener);
+
+
+
+        this.petViewModel = ViewModelProviders.of(this).get(PetViewModel.class);
+
+        final Observer<Pet> petObserver = new Observer<Pet>()
+        {
+            @Override
+            public void onChanged(@Nullable Pet pet) {
+                updateUi(pet);
+            }
+        };
+
+        petViewModel.getPet(this.idOfClickedPet).observe(this, petObserver);
 
     }
 
@@ -184,7 +235,7 @@ public class EditorActivity extends AppCompatActivity /*implements LoaderManager
         String weightAsString = mWeightEditText.getText().toString().trim();
         //
         // Solving the bug of pressing Add a InterfaceOfPet without entering values
-        if (this.mUriOfClickedPetFromReceivedIntent == null && TextUtils.isEmpty(name) &&
+        if (this.idOfClickedPet == -1 && TextUtils.isEmpty(name) &&
                 TextUtils.isEmpty(breed) && TextUtils.isEmpty(weightAsString) &&
                 mGender == 0) {
             //
@@ -199,24 +250,19 @@ public class EditorActivity extends AppCompatActivity /*implements LoaderManager
 
 
         // prepare the values of a row
-//        ContentValues contentValues = new ContentValues();
-//
-//        contentValues.put(PetEntry.COLUMN_PET_NAME, name);
-//        contentValues.put(PetEntry.COLUMN_PET_BREED, breed);
-//        contentValues.put(PetEntry.COLUMN_PET_GENDER, mGender);
-//        contentValues.put(PetEntry.COLUMN_PET_WEIGHT, weight);
-
+        Pet pet = new Pet(name, breed, mGender, weight);
         //
 
         // change the function of the EditorActivity
         // to either insertPet or updatePet
         // according to this.mUriOfClickedPetFromReceivedIntent
-        if (this.mUriOfClickedPetFromReceivedIntent == null) {
+        if (this.idOfClickedPet == -1) {
             // this is the function of insertPet
 
-//            Uri uriOfInsertedRowOfPet = getContentResolver().insert(PetEntry.CONTENT_URI, contentValues);
+            //**Uri uriOfInsertedRowOfPet = getContentResolver().insert(PetEntry.CONTENT_URI, contentValues);
 
-//            Log.v(LOG_TAG, "Id of inserted row is: " + ContentUris.parseId(uriOfInsertedRowOfPet));
+            //
+            //Log.v(LOG_TAG, "Id of inserted row is: " + ContentUris.parseId(uriOfInsertedRowOfPet));
 
             /*if (uriOfInsertedRowOfPet == null) {
                 Toast.makeText(this, super.getString(R.string.editor_insert_pet_failed) +
