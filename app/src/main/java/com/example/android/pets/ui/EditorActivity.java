@@ -303,7 +303,11 @@ public class EditorActivity extends AppCompatActivity /*implements LoaderManager
                     this.mUriOfClickedPetFromReceivedIntent, contentValues,
                     null, null);*/
 
-            this.petViewModel.updatePet(pet);
+            this.theClickedPet.setName(name);
+            this.theClickedPet.setBreed(breed);
+            this.theClickedPet.setGender(mGender);
+            this.theClickedPet.setWeight(weight);
+            this.petViewModel.updatePet(this.theClickedPet);
             Log.v(LOG_TAG, "Count of updated rows is: " /*+ countOfUpdatedRows*/);
 
             /*if (countOfUpdatedRows == 0) {
