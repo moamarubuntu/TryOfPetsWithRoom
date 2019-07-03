@@ -47,8 +47,8 @@ public class PetViewModel extends AndroidViewModel
         this.petRepository.deletePet(pet);
     }
 
-    public void deleteAllPets()
+    public LiveData<Integer> deleteAllPets()
     {
-        this.petRepository.deleteAllPets();
+        return this.petRepository.deleteAllPets();
     }
 }

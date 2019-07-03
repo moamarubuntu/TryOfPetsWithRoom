@@ -53,7 +53,8 @@ import java.util.Locale;
 /**
  * Allows user to create a new pet or edit an existing one.
  */
-public class EditorActivity extends AppCompatActivity /*implements LoaderManager.LoaderCallbacks<Cursor>*/ {
+public class EditorActivity extends AppCompatActivity
+{
     //
     private static final String LOG_TAG = EditorActivity.class.getSimpleName();
 
@@ -374,48 +375,6 @@ public class EditorActivity extends AppCompatActivity /*implements LoaderManager
         }
         return super.onOptionsItemSelected(item);
     }
-
-    /*@Override
-    public Loader<Cursor> onCreateLoader(int id, Bundle bundle) {
-        //
-
-        switch (id) {
-            //
-            case ID_OF_EDIT_OR_INSERT_PET_LOADER:
-                //
-                // to test if this.mUriOfClickedPetFromReceivedIntent is not null
-                if (this.mUriOfClickedPetFromReceivedIntent == null) {
-                    return null;
-                }
-                // Return a new Loader of Cursor
-                return null;
-            default:
-                // An invalid id was passed
-                return null;
-        }
-    }*/
-
-    /*@Override
-    public void onLoadFinished(Loader<Cursor> loader, Cursor cursor) {
-        //
-        // Bail early if the cursor is null or there is less than 1 row in the cursor
-        if (cursor == null || cursor.getCount() < 1) {
-            return;
-        }
-
-        // there is only one row in the cursor
-        // moveToNext means move
-
-    }*/
-
-    /*@Override
-    public void onLoaderReset(Loader<Cursor> loader) {
-        //
-        mNameEditText.getText().clear();
-        mBreedEditText.getText().clear();
-        mGenderSpinner.setSelection(0);
-        mWeightEditText.getText().clear();
-    }*/
 
     //
     private void showUnsavedChangesAlertDialog(

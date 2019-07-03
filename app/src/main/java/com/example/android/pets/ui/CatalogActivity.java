@@ -19,6 +19,7 @@ import android.app.AlertDialog;
 import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.ContentUris;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
@@ -44,7 +45,8 @@ import java.util.List;
 /**
  * Displays list of pets that were entered and stored in the app.
  */
-public class CatalogActivity extends AppCompatActivity /*implements LoaderManager.LoaderCallbacks<List<Pet>>*/ {
+public class CatalogActivity extends AppCompatActivity
+{
     //
     private static final String LOG_TAG = CatalogActivity.class.getSimpleName();
 
@@ -56,6 +58,8 @@ public class CatalogActivity extends AppCompatActivity /*implements LoaderManage
 
     //
     private PetViewModel petViewModel;
+
+    private Context context;// = this.getApplicationContext();
 
 
     //
@@ -94,18 +98,7 @@ public class CatalogActivity extends AppCompatActivity /*implements LoaderManage
         });
     }
 
-    //
-    /*private void subscribeUiPets()
-    {
-        //
-        petViewModel.getAllPets().observe(this, new Observer<List<Pet>>() {
-            @Override
-            public void onChanged(@Nullable List<Pet> pets) {
-                updateUi(pets);
-            }
-        });
-    }*/
-
+    ///
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -121,11 +114,7 @@ public class CatalogActivity extends AppCompatActivity /*implements LoaderManage
             }
         });
 
-
-        //
-        //displayDatabaseInfo();
-
-//        getLoaderManager().initLoader(ID_OF_PET_LOADER, null, this);
+        this.context= this.getApplicationContext();
 
 
         // was before
@@ -148,53 +137,6 @@ public class CatalogActivity extends AppCompatActivity /*implements LoaderManage
     }
 
 
-//    @Override
-//    public Loader<List<Pet>> onCreateLoader(int id, Bundle bundle) {
-//
-//        String [] columns = {
-//                PetEntry._ID,
-//                PetEntry.COLUMN_PET_NAME,
-//                PetEntry.COLUMN_PET_BREED,
-//                PetEntry.COLUMN_PET_GENDER,
-//                PetEntry.COLUMN_PET_WEIGHT
-//        };
-//
-//        switch (id) {
-//            //
-//            case ID_OF_PET_LOADER:
-//                // Return a new Loader of Cursor
-//                /*return new CursorLoader(this,
-//                        PetEntry.CONTENT_URI,
-//                        columns,
-//                        null,
-//                        null,
-//                        null);*/
-//                return passPets();
-//            default:
-//                // An invalid id was passed
-//                return null;
-//        }
-//    }
-
-//    @Override
-//    public void onLoadFinished(Loader<List<Pet>> loader, /*Cursor cursor*/List<Pet> pets) {
-//        //
-//        // Update {@link PetCursorAdapter} with this new cursor containing updated database of pet
-//        // was before now move to updateUi()
-//        //mPetCursorAdapter.swapCursor(cursor);
-//
-//        // now
-//        this.updateUi(pets);
-//    }
-
-//    @Override
-//    public void onLoaderReset(Loader<List<Pet>> loader) {
-//        //
-//        // Callback called when the cursor needs to be deleted
-//        //mPetCursorAdapter.swapCursor(null);
-//        this.petAdapter.clear();
-//    }
-
     private void insertTestOfPet() {
         //
         // this pet to insert by pressing the menu item
@@ -212,26 +154,6 @@ public class CatalogActivity extends AppCompatActivity /*implements LoaderManage
     }
 
     //
-    //
-    private void deleteAllPets() {
-        // TODO: Implement this method
-        //
-        Log.v(this.LOG_TAG, "rows deleted from pet database count is: ");
-
-        // Show a toast message depending on whether or not the delete was successful.
-        if (0 == 0) {
-            // If no rows were deleted, then there was an error with the delete.
-            Toast.makeText(this, super.getString(R.string.catalog_delete_all_pets_failed) +
-                    " ", Toast.LENGTH_LONG).show();
-        } else {
-            // Otherwise, the delete was successful and we can display a toast.
-            Toast.makeText(this, super.getString(R.string.catalog_delete_all_pets_successful) +
-                    " ", Toast.LENGTH_LONG).show();
-        }
-        // Close the activity
-        //super.finish();
-
-    }
 
     //
     private void showDeleteAllConfirmationAlertDialog() {
@@ -290,6 +212,33 @@ public class CatalogActivity extends AppCompatActivity /*implements LoaderManage
                 return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+
+    //
+    private void deleteAllPets() {
+        // TODO: Implement this method
+        //
+        Log.v(this.LOG_TAG, "rows deleted from pet database count is: ");
+
+        final Observer<Integer> countOfDeletedPetsIntegerObserver = new Observer<Integer>()
+        {
+            @Override
+            public void onChanged(@Nullable Integer countOfDeletedPetsInteger)
+            {
+                // Show a toast message depending on whether or not the delete was successful.
+                if (countOfDeletedPetsInteger == 0) {
+                    // If no rows were deleted, then there was an error with the delete.
+                    Toast.makeText(context, getString(R.string.catalog_delete_all_pets_failed) +
+                            " " + countOfDeletedPetsInteger, Toast.LENGTH_LONG).show();
+                } else {
+                    // Otherwise, the delete was successful and we can display a toast.
+                    Toast.makeText(context, getString(R.string.catalog_delete_all_pets_successful) +
+                            " " + countOfDeletedPetsInteger, Toast.LENGTH_LONG).show();
+                }
+            }
+        };
+
+        this.petViewModel.deleteAllPets().observe(this, countOfDeletedPetsIntegerObserver);
     }
 
     /**

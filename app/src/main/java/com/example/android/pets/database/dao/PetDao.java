@@ -34,7 +34,7 @@ public interface PetDao
     void deletePet(Pet pet);
 
     @Query("DELETE FROM pets")
-    void deleteAllPets();
+    int deleteAllPets();
 
 
 }

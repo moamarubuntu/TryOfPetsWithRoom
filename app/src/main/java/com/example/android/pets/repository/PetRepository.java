@@ -2,6 +2,7 @@ package com.example.android.pets.repository;
 
 import android.app.Application;
 import android.arch.lifecycle.LiveData;
+import android.arch.lifecycle.MutableLiveData;
 import android.os.AsyncTask;
 
 import com.example.android.pets.database.dao.PetDao;
@@ -15,6 +16,8 @@ public class PetRepository
     private PetDao petDao;
 
     private LiveData<List<Pet>> allPets;
+
+    public MutableLiveData<Integer> countOfDeletedPetsIntegerMutableLiveData = new MutableLiveData();
 
     public PetRepository(Application application){
         //
@@ -104,7 +107,7 @@ public class PetRepository
     }
 
     //--
-    private static class DeleteAllPetsAsyncTask extends AsyncTask<Void, Void, Void>
+    private /*static*/ class DeleteAllPetsAsyncTask extends AsyncTask<Void, Void, Integer>
     {
         private PetDao petDaoOfDeleteAllAsyncTask;
 
@@ -112,17 +115,43 @@ public class PetRepository
         {
             this.petDaoOfDeleteAllAsyncTask = petDao;
         }
+
         @Override
-        protected Void doInBackground(Void... voids)
+        protected Integer doInBackground(Void... voids)
         {
-            this.petDaoOfDeleteAllAsyncTask.deleteAllPets();
-            return null;
+            int countOfDeletedRows = this.petDaoOfDeleteAllAsyncTask.deleteAllPets();
+            return countOfDeletedRows;
+        }
+
+        /**
+         * <p>Runs on the UI thread after {@link #doInBackground}. The
+         * specified result is the value returned by {@link #doInBackground}.</p>
+         *
+         * <p>This method won't be invoked if the task was cancelled.</p>
+         *
+         * @param integer The result of the operation computed by {@link #doInBackground}.
+         * @see #onPreExecute
+         * @see #doInBackground
+         * @see #onCancelled(Object)
+         */
+        @Override
+        protected void onPostExecute(Integer integer) {
+            //super.onPostExecute(integer);
+            // TODO: how to return this integer to
+            countOfDeletedPetsIntegerMutableLiveData.postValue(integer);
         }
     }
 
     //
-    public void deleteAllPets()
+    public LiveData<Integer> deleteAllPets()
     {
         new DeleteAllPetsAsyncTask(this.petDao).execute();
+
+        return countOfDeletedPetsIntegerMutableLiveData;
+    }
+
+    private void deleteAllPetsReturnInteger(Integer integer)
+    {
+        //return integer;
     }
 }
