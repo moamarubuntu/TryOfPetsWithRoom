@@ -34,17 +34,18 @@ public class PetViewModel extends AndroidViewModel
         return  this.petRepository.getPet(id);
     }
 
-    public void insertPet(Pet pet) {
-        this.petRepository.savePet(pet);
-    }
-
-    public void updatePet(Pet pet) {
-        this.petRepository.updatePet(pet);
-    }
-
-    public void deletePet(Pet pet)
+    public LiveData<Long> insertPet(Pet pet)
     {
-        this.petRepository.deletePet(pet);
+        return this.petRepository.savePet(pet);
+    }
+
+    public LiveData<Integer> updatePet(Pet pet) {
+        return this.petRepository.updatePet(pet);
+    }
+
+    public LiveData<Integer> deletePet(Pet pet)
+    {
+        return this.petRepository.deletePet(pet);
     }
 
     public LiveData<Integer> deleteAllPets()

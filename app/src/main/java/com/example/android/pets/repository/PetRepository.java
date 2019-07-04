@@ -17,7 +17,7 @@ public class PetRepository
 
     private LiveData<List<Pet>> allPets;
 
-    public MutableLiveData<Integer> countOfDeletedPetsIntegerMutableLiveData = new MutableLiveData();
+    //public MutableLiveData<Integer> countOfDeletedPetsIntegerMutableLiveData = new MutableLiveData<>();
 
     public PetRepository(Application application){
         //
@@ -41,75 +41,147 @@ public class PetRepository
     }
 
     //--
-    private static class InsertPetAsyncTask extends AsyncTask<Pet, Void, Void>
+    private static class InsertPetAsyncTask extends AsyncTask<Pet, Void, Long>
     {
         private PetDao petDaoOfInsertAsyncTask;
+
+        // to return the id of the inserted pet
+        private MutableLiveData<Long> idOfTheInsertedPetLongMutableLiveData = new MutableLiveData<>();
 
         InsertPetAsyncTask(PetDao petDao)
         {
             this.petDaoOfInsertAsyncTask = petDao;
         }
+
         @Override
-        protected Void doInBackground(Pet... pets) {
-            this.petDaoOfInsertAsyncTask.insertPet(pets[0]);
-            return null;
+        protected Long doInBackground(Pet... pets) {
+            long idOfTheInsertedRow = this.petDaoOfInsertAsyncTask.insertPet(pets[0]);
+            return idOfTheInsertedRow;
+        }
+
+        /**
+         * <p>Runs on the UI thread after {@link #doInBackground}. The
+         * specified result is the value returned by {@link #doInBackground}.</p>
+         *
+         * <p>This method won't be invoked if the task was cancelled.</p>
+         *
+         * @param aLong The result of the operation computed by {@link #doInBackground}.
+         * @see #onPreExecute
+         * @see #doInBackground
+         * @see #onCancelled(Object)
+         */
+        @Override
+        protected void onPostExecute(Long aLong) {
+            //super.onPostExecute(aLong);
+            idOfTheInsertedPetLongMutableLiveData.postValue(aLong);
         }
     }
 
     //
-    public void savePet(Pet pet)
+    public LiveData<Long> savePet(Pet pet)
     {
-        new InsertPetAsyncTask(this.petDao).execute(pet);
+        InsertPetAsyncTask insertPetAsyncTask = new InsertPetAsyncTask(this.petDao);
+        insertPetAsyncTask.execute(pet);
+
+        return insertPetAsyncTask.idOfTheInsertedPetLongMutableLiveData;
     }
 
     //--
-    private static class UpdatePetAsyncTask extends AsyncTask<Pet, Void, Void>
+    private /*static*/ class UpdatePetAsyncTask extends AsyncTask<Pet, Void, Integer>
     {
         private PetDao petDaoOfUpdateAsyncTask;
+        // to return the id of the inserted pet
+        private MutableLiveData<Integer> countOfTheUpdatedPetIntegerMutableLiveData = new MutableLiveData<>();
 
         UpdatePetAsyncTask(PetDao petDao)
         {
             this.petDaoOfUpdateAsyncTask = petDao;
         }
+
         @Override
-        protected Void doInBackground(Pet... pets)
+        protected Integer doInBackground(Pet... pets)
         {
-            this.petDaoOfUpdateAsyncTask.updatePet(pets[0]);
-            return null;
+            int countOfTheUpdatedRow = this.petDaoOfUpdateAsyncTask.updatePet(pets[0]);
+            return countOfTheUpdatedRow;
+        }
+
+        /**
+         * <p>Runs on the UI thread after {@link #doInBackground}. The
+         * specified result is the value returned by {@link #doInBackground}.</p>
+         *
+         * <p>This method won't be invoked if the task was cancelled.</p>
+         *
+         * @param integer The result of the operation computed by {@link #doInBackground}.
+         * @see #onPreExecute
+         * @see #doInBackground
+         * @see #onCancelled(Object)
+         */
+        @Override
+        protected void onPostExecute(Integer integer) {
+            //super.onPostExecute(integer);
+            countOfTheUpdatedPetIntegerMutableLiveData.postValue(integer);
         }
     }
 
     //
-    public void updatePet(Pet pet) {
-        new UpdatePetAsyncTask(this.petDao).execute(pet);
+    public LiveData<Integer> updatePet(Pet pet) {
+        UpdatePetAsyncTask updatePetAsyncTask = new UpdatePetAsyncTask(this.petDao);
+        updatePetAsyncTask.execute(pet);
+
+        return updatePetAsyncTask.countOfTheUpdatedPetIntegerMutableLiveData;
     }
 
     //--
-    private static class DeletePetAsyncTask extends AsyncTask<Pet, Void, Void>
+    private /*static*/ class DeletePetAsyncTask extends AsyncTask<Pet, Void, Integer>
     {
         private PetDao petDaoOfDeleteAsyncTask;
+
+        private MutableLiveData<Integer> countOfTheDeletedPetIntegerMutableLiveData =
+                new MutableLiveData<>();
 
         DeletePetAsyncTask(PetDao petDao)
         {
             this.petDaoOfDeleteAsyncTask = petDao;
         }
+
         @Override
-        protected Void doInBackground(Pet... pets) {
-            this.petDaoOfDeleteAsyncTask.deletePet(pets[0]);
-            return null;
+        protected Integer doInBackground(Pet... pets) {
+            int countOfTheDeletedRow = this.petDaoOfDeleteAsyncTask.deletePet(pets[0]);
+            return countOfTheDeletedRow;
+        }
+
+        /**
+         * <p>Runs on the UI thread after {@link #doInBackground}. The
+         * specified result is the value returned by {@link #doInBackground}.</p>
+         *
+         * <p>This method won't be invoked if the task was cancelled.</p>
+         *
+         * @param aVoid The result of the operation computed by {@link #doInBackground}.
+         * @see #onPreExecute
+         * @see #doInBackground
+         * @see #onCancelled(Object)
+         */
+        @Override
+        protected void onPostExecute(Integer integer) {
+            //super.onPostExecute(aVoid);
+            countOfTheDeletedPetIntegerMutableLiveData.postValue(integer);
         }
     }
 
     //
-    public void deletePet(Pet pet)
+    public LiveData<Integer> deletePet(Pet pet)
     {
-        new DeletePetAsyncTask(this.petDao).execute(pet);
+        DeletePetAsyncTask deletePetAsyncTask = new DeletePetAsyncTask(this.petDao);
+        deletePetAsyncTask.execute(pet);
+
+        return deletePetAsyncTask.countOfTheDeletedPetIntegerMutableLiveData;
     }
 
     //--
     private /*static*/ class DeleteAllPetsAsyncTask extends AsyncTask<Void, Void, Integer>
     {
         private PetDao petDaoOfDeleteAllAsyncTask;
+        private MutableLiveData<Integer> countOfDeletedPetsIntegerMutableLiveData = new MutableLiveData<>();
 
         DeleteAllPetsAsyncTask(PetDao petDao)
         {
@@ -145,13 +217,13 @@ public class PetRepository
     //
     public LiveData<Integer> deleteAllPets()
     {
-        new DeleteAllPetsAsyncTask(this.petDao).execute();
+        //like this call
+        //new DeleteAllPetsAsyncTask(this.petDao).execute();
+        // or
+        // like this call
+        DeleteAllPetsAsyncTask deleteAllPetsAsyncTask = new DeleteAllPetsAsyncTask(this.petDao);
+        deleteAllPetsAsyncTask.execute();
 
-        return countOfDeletedPetsIntegerMutableLiveData;
-    }
-
-    private void deleteAllPetsReturnInteger(Integer integer)
-    {
-        //return integer;
+        return deleteAllPetsAsyncTask.countOfDeletedPetsIntegerMutableLiveData;
     }
 }

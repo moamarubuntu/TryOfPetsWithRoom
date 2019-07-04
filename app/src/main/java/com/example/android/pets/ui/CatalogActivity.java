@@ -143,17 +143,21 @@ public class CatalogActivity extends AppCompatActivity
         // of insert in CatalogActivity
         Pet tryPet = new Pet("Toto", "Terrier" , 0, 7);
 
+        final Observer<Long>  idOfTheInsertedPetLongObserver = new Observer<Long>() {
+            @Override
+            public void onChanged(@Nullable Long aLong) {
+                //
+                Toast.makeText(context, getString(R.string.editor_insert_pet_successful) +
+                        aLong, Toast.LENGTH_LONG).show();
+            }
+        };
         // insert a pet
-        petViewModel.insertPet(tryPet);
+        petViewModel.insertPet(tryPet).observe(this, idOfTheInsertedPetLongObserver);
 
-        //
-        Toast.makeText(this, super.getString(R.string.editor_insert_pet_successful),
-                Toast.LENGTH_LONG).show();
+
         //
         Log.v(LOG_TAG, "Id of row is: ");
     }
-
-    //
 
     //
     private void showDeleteAllConfirmationAlertDialog() {

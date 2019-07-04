@@ -25,13 +25,13 @@ public interface PetDao
     Pet selectPetSync(int id);
 
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    void insertPet(Pet pet);
+    long insertPet(Pet pet);
 
     @Update
-    void updatePet(Pet pet);
+    int updatePet(Pet pet);
 
     @Delete
-    void deletePet(Pet pet);
+    int deletePet(Pet pet);
 
     @Query("DELETE FROM pets")
     int deleteAllPets();

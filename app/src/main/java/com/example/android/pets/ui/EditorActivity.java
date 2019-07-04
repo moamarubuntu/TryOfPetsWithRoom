@@ -21,6 +21,7 @@ import android.arch.lifecycle.Observer;
 import android.arch.lifecycle.ViewModelProviders;
 import android.content.ContentUris;
 import android.content.ContentValues;
+import android.content.Context;
 import android.content.CursorLoader;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -86,6 +87,8 @@ public class EditorActivity extends AppCompatActivity
     //
     private PetViewModel petViewModel;
 
+    private Context context;// = this.getApplicationContext();
+
     //
     private final static int ID_OF_EDIT_OR_INSERT_PET_LOADER = 0;
 
@@ -139,6 +142,8 @@ public class EditorActivity extends AppCompatActivity
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_editor);
+
+        this.context= this.getApplicationContext();
 
         this.petViewModel = ViewModelProviders.of(this).get(PetViewModel.class);
 
@@ -284,40 +289,50 @@ public class EditorActivity extends AppCompatActivity
         // according to this.mUriOfClickedPetFromReceivedIntent
         if (this.idOfClickedPet <= 0) {
             // this is the function of insertPet
+            final Observer<Long>  idOfTheInsertedPetLongObserver = new Observer<Long>() {
+                @Override
+                public void onChanged(@Nullable Long idOfTheInsertedPetLong) {
+                    //
+                    if (!(idOfTheInsertedPetLong > 0)) {
+                        Toast.makeText(context, getString(R.string.editor_insert_pet_failed) +
+                                idOfTheInsertedPetLong, Toast.LENGTH_LONG).show();
+                    } else {
+                        Toast.makeText(context, getString(R.string.editor_insert_pet_successful) +
+                                idOfTheInsertedPetLong, Toast.LENGTH_LONG).show();
+                    }
+                }
+            };
 
-            //**Uri uriOfInsertedRowOfPet = getContentResolver().insert(PetEntry.CONTENT_URI, contentValues);
-
-            this.petViewModel.insertPet(pet);
+            this.petViewModel.insertPet(pet).observe(this, idOfTheInsertedPetLongObserver);
             //Log.v(LOG_TAG, "Id of inserted row is: " + ContentUris.parseId(uriOfInsertedRowOfPet));
-
-            /*if (uriOfInsertedRowOfPet == null) {
-                Toast.makeText(this, super.getString(R.string.editor_insert_pet_failed) +
-                        ContentUris.parseId(uriOfInsertedRowOfPet), Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(this, super.getString(R.string.editor_insert_pet_successful) +
-                        ContentUris.parseId(uriOfInsertedRowOfPet), Toast.LENGTH_LONG).show();
-            }*/
         }
         else {
             // this is the function of updatePet
-            /*int countOfUpdatedRows = getContentResolver().update(
-                    this.mUriOfClickedPetFromReceivedIntent, contentValues,
-                    null, null);*/
-
             this.theClickedPet.setName(name);
             this.theClickedPet.setBreed(breed);
             this.theClickedPet.setGender(mGender);
             this.theClickedPet.setWeight(weight);
-            this.petViewModel.updatePet(this.theClickedPet);
+            //
+            final Observer<Integer> countOfTheUpdatedPetIntegerObserver = new Observer<Integer>()
+            {
+                @Override
+                public void onChanged(@Nullable Integer countOfTheUpdatedPetInteger)
+                {
+                    // Show a toast message depending on whether or not the delete was successful.
+                    if (countOfTheUpdatedPetInteger == 0) {
+                        Toast.makeText(context, getString(R.string.editor_update_pet_failed) +
+                                countOfTheUpdatedPetInteger, Toast.LENGTH_LONG).show();
+                    }
+                    else {
+                        Toast.makeText(context, getString(R.string.editor_update_pet_successful) +
+                                countOfTheUpdatedPetInteger, Toast.LENGTH_LONG).show();
+                    }
+                }
+            };
+            //
+            this.petViewModel.updatePet(this.theClickedPet).observe(this,
+                    countOfTheUpdatedPetIntegerObserver);
             Log.v(LOG_TAG, "Count of updated rows is: " /*+ countOfUpdatedRows*/);
-
-            /*if (countOfUpdatedRows == 0) {
-                Toast.makeText(this, super.getString(R.string.editor_update_pet_failed) +
-                        countOfUpdatedRows, Toast.LENGTH_LONG).show();
-            } else {
-                Toast.makeText(this, super.getString(R.string.editor_update_pet_successful) +
-                        countOfUpdatedRows, Toast.LENGTH_LONG).show();
-            }*/
         }
         //
     }
@@ -490,28 +505,32 @@ public class EditorActivity extends AppCompatActivity
         // TODO: Implement this method
         // Only perform the delete if this is an existing pet.
         if (this.idOfClickedPet > 0) {
-            //if (this.mUriOfClickedPetFromReceivedIntent != null) {
-            // Call the ContentResolver to delete the pet at the given content URI.
-            // Pass in null for the selection and selection args because the mCurrentPetUri
-            // content URI already identifies the pet that we want.
-
-            // either PetEntry.CONTENT_URI with selection and selectionArgs
-            // or this.mUriOfClickedPet with null and null
-            /*int countOfDeletedRows = getContentResolver().delete(this.mUriOfClickedPetFromReceivedIntent,
-                    null, null);*/
             //
-            this.petViewModel.deletePet(this.theClickedPet);
+
+            final Observer<Integer> countOfTheDeletedPetIntegerObserver = new Observer<Integer>()
+            {
+                @Override
+                public void onChanged(@Nullable Integer countOfTheDeletedPetInteger)
+                {
+                    // Show a toast message depending on whether or not the delete was successful.
+                    if (countOfTheDeletedPetInteger == 0) {
+                        // If no rows were deleted, then there was an error with the delete.
+                        Toast.makeText(context, getString(R.string.editor_delete_pet_failed) +
+                                countOfTheDeletedPetInteger, Toast.LENGTH_LONG).show();
+                    }
+                    else {
+                        // Otherwise, the delete was successful and we can display a toast.
+                        Toast.makeText(context, getString(R.string.editor_delete_pet_successful) +
+                                countOfTheDeletedPetInteger, Toast.LENGTH_LONG).show();
+                    }
+                }
+            };
+            //
+            this.petViewModel.deletePet(this.theClickedPet).observe(this,
+                    countOfTheDeletedPetIntegerObserver);
             Log.v(LOG_TAG, "Count of deleted rows is: " /*+ countOfUpdatedRows*/);
-            // Show a toast message depending on whether or not the delete was successful.
-            /*if (countOfDeletedRows == 0) {
-                // If no rows were deleted, then there was an error with the delete.
-                Toast.makeText(this, super.getString(R.string.editor_delete_pet_failed) +
-                        countOfDeletedRows, Toast.LENGTH_LONG).show();
-            } else {
-                // Otherwise, the delete was successful and we can display a toast.
-                Toast.makeText(this, super.getString(R.string.editor_delete_pet_successful) +
-                        countOfDeletedRows, Toast.LENGTH_LONG).show();
-            }*/
+            //
+
             // Close the editor activity
             super.finish();
         }
