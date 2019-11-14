@@ -9,11 +9,11 @@ import android.arch.persistence.room.Update;
 public interface DataTypeDao<DT>
 {
     @Insert(onConflict = OnConflictStrategy.IGNORE)
-    long insertDataType(DT dt);
+    long insertDataType(DT dT);
 
     @Update
-    int updateDataType(DT dt);
+    int updateDataType(DT dT);
 
     @Delete
-    int deleteDataType(DT dt);
+    int deleteDataType(DT dT);
 }
