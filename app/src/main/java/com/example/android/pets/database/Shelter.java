@@ -37,7 +37,7 @@ public abstract class Shelter extends RoomDatabase
             //this.petDao.deleteAllPets();
 
             /*Pet pet = new Pet("Pet name", "Pet breed", 0, 7);
-            this.petDao.insertPet(pet);*/
+            this.petDao.insertDataType(pet);*/
             return null;
         }
     }//PopulateDataAsyncTask

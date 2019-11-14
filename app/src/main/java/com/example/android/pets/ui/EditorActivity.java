@@ -258,7 +258,7 @@ public class EditorActivity extends AppCompatActivity
     private void insertPetOrUpdatePet() {
         //
         // prepare the values to be inserted or updated
-        // before deciding if the function is insertPet or updatePet
+        // before deciding if the function is insertDataType or updateDataType
         //
         // trim() remove any white spaces before and after the string
         String name = mNameEditText.getText().toString().trim();
@@ -285,10 +285,10 @@ public class EditorActivity extends AppCompatActivity
         //
 
         // change the function of the EditorActivity
-        // to either insertPet or updatePet
+        // to either insertDataType or updateDataType
         // according to this.mUriOfClickedPetFromReceivedIntent
         if (this.idOfClickedPet <= 0) {
-            // this is the function of insertPet
+            // this is the function of insertDataType
             final Observer<Long>  idOfTheInsertedPetLongObserver = new Observer<Long>() {
                 @Override
                 public void onChanged(@Nullable Long idOfTheInsertedPetLong) {
@@ -307,7 +307,7 @@ public class EditorActivity extends AppCompatActivity
             //Log.v(LOG_TAG, "Id of inserted row is: " + ContentUris.parseId(uriOfInsertedRowOfPet));
         }
         else {
-            // this is the function of updatePet
+            // this is the function of updateDataType
             this.theClickedPet.setName(name);
             this.theClickedPet.setBreed(breed);
             this.theClickedPet.setGender(mGender);

@@ -2,9 +2,13 @@ package com.example.android.pets.database.entity;
 
 import android.arch.persistence.room.ColumnInfo;
 import android.arch.persistence.room.Entity;
+import android.arch.persistence.room.Ignore;
 import android.arch.persistence.room.PrimaryKey;
+import android.content.ContentResolver;
+import android.net.Uri;
 import android.support.annotation.NonNull;
 
+import com.example.android.pets.database.ShelterContract;
 import com.example.android.pets.model.InterfaceOfPet;
 
 @Entity(tableName = "pets")
@@ -18,6 +22,18 @@ public class Pet implements InterfaceOfPet
     private int gender;
     private int weight;
 
+    @Ignore
+    public static final String PATH_PETS = "pets";
+
+    public static final Uri CONTENT_URI = Uri.withAppendedPath(ShelterContract.BASE_CONTENT_URI, PATH_PETS);
+
+    /*public */static final String CONTENT_LIST_TYPE =
+            ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + ShelterContract.CONTENT_AUTHORITY + "/" + PATH_PETS;
+
+    /*public */static final String CONTENT_ITEM_TYPE =
+            ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + ShelterContract.CONTENT_AUTHORITY + "/" + PATH_PETS;
+
+
     @Override
     public int getId() {
         return this.id;
@@ -26,6 +42,7 @@ public class Pet implements InterfaceOfPet
     public void setId(@NonNull int id) {
         this.id = id;
     }
+
 
     @Override
     public String getName()
@@ -38,6 +55,7 @@ public class Pet implements InterfaceOfPet
         this.name = name;
     }
 
+
     @Override
     public String getBreed()
     {
@@ -48,6 +66,7 @@ public class Pet implements InterfaceOfPet
     {
         this.breed = breed;
     }
+
 
     @Override
     public int getGender()
@@ -61,6 +80,7 @@ public class Pet implements InterfaceOfPet
             this.gender = gender;
         }
     }
+
 
     @Override
     public int getWeight()

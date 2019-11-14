@@ -146,7 +146,7 @@ public class CatalogActivity extends AppCompatActivity
         final Observer<Long>  idOfTheInsertedPetLongObserver = new Observer<Long>() {
             @Override
             public void onChanged(@Nullable Long aLong) {
-                //
+                // equal to updateUi()
                 Toast.makeText(context, getString(R.string.editor_insert_pet_successful) +
                         aLong, Toast.LENGTH_LONG).show();
             }

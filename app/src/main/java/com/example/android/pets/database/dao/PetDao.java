@@ -13,7 +13,7 @@ import com.example.android.pets.database.entity.Pet;
 import java.util.List;
 
 @Dao
-public interface PetDao
+public interface PetDao extends DataTypeDao<Pet>
 {
     @Query("SELECT * FROM pets")
     LiveData<List<Pet>> selectAllPets();
@@ -24,14 +24,14 @@ public interface PetDao
     @Query("SELECT * FROM pets WHERE id == :id")
     Pet selectPetSync(int id);
 
-    @Insert(onConflict = OnConflictStrategy.IGNORE)
-    long insertPet(Pet pet);
+    /*@Insert(onConflict = OnConflictStrategy.IGNORE)
+    long insertDataType(Pet pet);
 
     @Update
-    int updatePet(Pet pet);
+    int updateDataType(Pet pet);
 
     @Delete
-    int deletePet(Pet pet);
+    int deleteDataType(Pet pet);*/
 
     @Query("DELETE FROM pets")
     int deleteAllPets();

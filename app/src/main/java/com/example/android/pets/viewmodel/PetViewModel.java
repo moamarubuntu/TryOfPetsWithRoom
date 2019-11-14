@@ -36,7 +36,7 @@ public class PetViewModel extends AndroidViewModel
 
     public LiveData<Long> insertPet(Pet pet)
     {
-        return this.petRepository.savePet(pet);
+        return this.petRepository.insertPet(pet);
     }
 
     public LiveData<Integer> updatePet(Pet pet) {

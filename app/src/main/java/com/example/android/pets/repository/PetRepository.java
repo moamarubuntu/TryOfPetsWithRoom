@@ -25,7 +25,7 @@ public class PetRepository
 
         this.petDao = shelter.petDao();
 
-        this.allPets = petDao.selectAllPets();
+        this.allPets = this.petDao.selectAllPets();
     }
 
     //
@@ -55,7 +55,7 @@ public class PetRepository
 
         @Override
         protected Long doInBackground(Pet... pets) {
-            long idOfTheInsertedRow = this.petDaoOfInsertAsyncTask.insertPet(pets[0]);
+            long idOfTheInsertedRow = this.petDaoOfInsertAsyncTask.insertDataType(pets[0]);
             return idOfTheInsertedRow;
         }
 
@@ -78,7 +78,7 @@ public class PetRepository
     }
 
     //
-    public LiveData<Long> savePet(Pet pet)
+    public LiveData<Long> insertPet(Pet pet)
     {
         InsertPetAsyncTask insertPetAsyncTask = new InsertPetAsyncTask(this.petDao);
         insertPetAsyncTask.execute(pet);
@@ -101,7 +101,7 @@ public class PetRepository
         @Override
         protected Integer doInBackground(Pet... pets)
         {
-            int countOfTheUpdatedRow = this.petDaoOfUpdateAsyncTask.updatePet(pets[0]);
+            int countOfTheUpdatedRow = this.petDaoOfUpdateAsyncTask.updateDataType(pets[0]);
             return countOfTheUpdatedRow;
         }
 
@@ -146,7 +146,7 @@ public class PetRepository
 
         @Override
         protected Integer doInBackground(Pet... pets) {
-            int countOfTheDeletedRow = this.petDaoOfDeleteAsyncTask.deletePet(pets[0]);
+            int countOfTheDeletedRow = this.petDaoOfDeleteAsyncTask.deleteDataType(pets[0]);
             return countOfTheDeletedRow;
         }
 
